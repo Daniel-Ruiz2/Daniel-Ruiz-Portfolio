@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- ════════════════════════════════════════════════
+       EDIT 1: Change the title to your project name
+  ════════════════════════════════════════════════ -->
+  <title>Project Name — Daniel Ruiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #080b10;
+      --surface: #0d1017;
+      --border:  rgba(255,255,255,0.07);
+      --accent:  #00e5c0;
+      --accent2: #4f7fff;
+      --text:    #dde3ee;
+      --muted:   #5a6278;
+      --card-bg: #0f1420;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; font-weight: 300; line-height: 1.65; overflow-x: hidden; }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: 0.7;
+    }
+    .grid-bg {
+      position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(0,229,192,0.025) 1px,transparent 1px), linear-gradient(90deg,rgba(0,229,192,0.025) 1px,transparent 1px);
+      background-size: 64px 64px; pointer-events: none; z-index: 0;
+    }
+    .glow-1,.glow-2 { position:fixed; border-radius:50%; filter:blur(130px); pointer-events:none; z-index:0; }
+    .glow-1 { width:600px; height:600px; background:radial-gradient(circle,rgba(0,229,192,0.06),transparent 70%); top:-200px; left:-200px; animation:g1 22s ease-in-out infinite; }
+    .glow-2 { width:500px; height:500px; background:radial-gradient(circle,rgba(79,127,255,0.06),transparent 70%); bottom:-100px; right:-100px; animation:g2 28s ease-in-out infinite; }
+    @keyframes g1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(80px,60px)} }
+    @keyframes g2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-60px,-80px)} }
+
+    /* NAV */
+    nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:26px 52px; border-bottom:1px solid transparent; transition:all 0.4s ease; }
+    nav.scrolled { background:rgba(8,11,16,0.9); border-bottom-color:var(--border); backdrop-filter:blur(18px); padding:16px 52px; }
+    .nav-logo { font-family:'Outfit',sans-serif; font-weight:700; font-size:1.15rem; color:var(--text); text-decoration:none; }
+    .nav-logo span { color:var(--accent); }
+    .nav-back { font-family:'JetBrains Mono',monospace; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); text-decoration:none; display:flex; align-items:center; gap:8px; transition:color 0.2s; }
+    .nav-back:hover { color:var(--accent); }
+
+    /* HERO */
+    .project-hero {
+      position: relative; min-height: 60vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 140px 52px 60px; z-index: 1; overflow: hidden;
+    }
+    .project-hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      /* ════════════════════════════════════════════════
+         EDIT 2: Replace this with your hero image.
+         Option A — photo:
+           background: url('../images/projects/your-photo.jpg') center/cover no-repeat;
+         Option B — keep the gradient (just change the colors):
+           background: linear-gradient(135deg, #0c1e2e, #183858);
+      ════════════════════════════════════════════════ */
+      background: linear-gradient(135deg, #0c1e2e, #0a1428, #183858);
+    }
+    .project-hero-bg::after { content:''; position:absolute; inset:0; background:linear-gradient(to top, var(--bg) 0%, rgba(8,11,16,0.5) 50%, transparent 100%); }
+    .project-hero-content { position:relative; z-index:1; max-width:900px; }
+    .hero-breadcrumb {
+      font-family:'JetBrains Mono',monospace; font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase;
+      color:var(--accent); margin-bottom:20px;
+      opacity:0; transform:translateY(16px); animation:fadeUp 0.7s 0.1s ease forwards;
+    }
+    .project-hero-title {
+      font-family:'Outfit',sans-serif; font-weight:800;
+      font-size:clamp(2.4rem,6vw,5rem); line-height:1.0; letter-spacing:-0.03em;
+      color:var(--text); margin-bottom:20px;
+      opacity:0; transform:translateY(20px); animation:fadeUp 0.8s 0.25s ease forwards;
+    }
+    .project-hero-sub {
+      font-size:clamp(0.95rem,1.6vw,1.2rem); color:var(--muted); font-weight:300; max-width:680px;
+      opacity:0; transform:translateY(16px); animation:fadeUp 0.7s 0.4s ease forwards;
+    }
+    .project-meta-bar {
+      display:flex; gap:0; flex-wrap:wrap; margin-top:40px; border:1px solid var(--border); background:var(--card-bg); overflow:hidden;
+      opacity:0; transform:translateY(16px); animation:fadeUp 0.7s 0.55s ease forwards;
+    }
+    .meta-item {
+      flex:1; min-width:140px; padding:18px 24px;
+      border-right:1px solid var(--border);
+    }
+    .meta-item:last-child { border-right:none; }
+    .meta-label { font-family:'JetBrains Mono',monospace; font-size:0.62rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+    .meta-value { font-size:0.9rem; font-weight:500; color:var(--text); }
+
+    /* CONTENT */
+    .project-content { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:80px 52px 40px; }
+    .content-grid { display:grid; grid-template-columns:1fr 340px; gap:60px; align-items:start; }
+
+    /* MAIN BODY */
+    .section-label { font-family:'JetBrains Mono',monospace; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--accent); margin-bottom:12px; }
+    .content-section { margin-bottom:60px; }
+    .content-section h2 { font-family:'Outfit',sans-serif; font-weight:700; font-size:1.5rem; letter-spacing:-0.02em; color:var(--text); margin-bottom:18px; }
+    .content-section p { color:var(--muted); font-size:0.97rem; line-height:1.85; margin-bottom:14px; }
+    .content-section p strong { color:var(--text); font-weight:500; }
+
+    /* IMAGE GRID */
+    .image-grid { display:grid; gap:12px; margin:32px 0; }
+    .image-grid.cols-1 { grid-template-columns:1fr; }
+    .image-grid.cols-2 { grid-template-columns:1fr 1fr; }
+    .image-grid.cols-3 { grid-template-columns:1fr 1fr 1fr; }
+    .img-wrapper {
+      border:1px solid var(--border); background:var(--card-bg); overflow:hidden; position:relative;
+    }
+    .img-wrapper img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.4s ease; }
+    .img-wrapper:hover img { transform:scale(1.03); }
+    .img-caption { font-family:'JetBrains Mono',monospace; font-size:0.65rem; letter-spacing:0.06em; color:var(--muted); padding:10px 14px; border-top:1px solid var(--border); }
+
+    /* PLACEHOLDER (remove once you add real images) */
+    .img-placeholder {
+      aspect-ratio:16/9; background:var(--surface);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+      border:1px dashed rgba(255,255,255,0.1);
+    }
+    .img-placeholder span { font-family:'JetBrains Mono',monospace; font-size:0.68rem; letter-spacing:0.08em; color:var(--muted); text-align:center; padding:0 20px; }
+
+    /* BULLET LIST */
+    .content-list { list-style:none; display:flex; flex-direction:column; gap:10px; margin:16px 0; }
+    .content-list li { font-size:0.95rem; color:var(--muted); line-height:1.7; padding-left:20px; position:relative; }
+    .content-list li::before { content:'›'; position:absolute; left:0; color:var(--accent); font-size:1.1rem; line-height:1.4; }
+
+    /* SIDEBAR */
+    .sidebar { position:sticky; top:100px; display:flex; flex-direction:column; gap:16px; }
+    .sidebar-card { border:1px solid var(--border); background:var(--card-bg); padding:24px; }
+    .sidebar-card-title { font-family:'JetBrains Mono',monospace; font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; }
+    .tech-tags { display:flex; flex-wrap:wrap; gap:8px; }
+    .tech-tag { font-family:'JetBrains Mono',monospace; font-size:0.65rem; letter-spacing:0.04em; padding:5px 12px; border:1px solid var(--border); color:var(--muted); transition:all 0.25s; }
+    .tech-tag:hover { border-color:var(--accent); color:var(--accent); }
+    .outcome-list { display:flex; flex-direction:column; gap:10px; }
+    .outcome-item { display:flex; align-items:flex-start; gap:10px; }
+    .outcome-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; margin-top:7px; }
+    .outcome-text { font-size:0.85rem; color:var(--muted); line-height:1.6; }
+    .sidebar-link { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border:1px solid var(--border); text-decoration:none; color:var(--text); font-size:0.88rem; transition:all 0.3s; }
+    .sidebar-link:hover { border-color:var(--accent); color:var(--accent); }
+    .sidebar-link span { font-family:'JetBrains Mono',monospace; font-size:0.7rem; }
+
+    /* PROJECT NAV */
+    .project-nav { position:relative; z-index:1; border-top:1px solid var(--border); margin:0 52px; padding:48px 0; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .proj-nav-link { text-decoration:none; display:flex; flex-direction:column; gap:6px; max-width:340px; padding:20px 24px; border:1px solid var(--border); background:var(--card-bg); transition:all 0.3s; }
+    .proj-nav-link:hover { border-color:rgba(0,229,192,0.35); transform:translateY(-3px); }
+    .proj-nav-dir { font-family:'JetBrains Mono',monospace; font-size:0.65rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+    .proj-nav-title { font-weight:600; font-size:0.95rem; color:var(--text); }
+    .proj-nav-link.next { text-align:right; }
+
+    footer { position:relative; z-index:1; padding:32px 52px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .footer-copy { font-family:'JetBrains Mono',monospace; font-size:0.68rem; color:var(--muted); }
+    .footer-copy span { color:var(--accent); }
+    .footer-links { display:flex; gap:28px; }
+    .footer-links a { font-family:'JetBrains Mono',monospace; font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+    .footer-links a:hover { color:var(--accent); }
+
+    @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+    .fade-in { opacity:0; transform:translateY(24px); transition:opacity 0.7s ease, transform 0.7s ease; }
+    .fade-in.visible { opacity:1; transform:translateY(0); }
+
+    @media (max-width:900px) {
+      .content-grid { grid-template-columns:1fr; }
+      .sidebar { position:static; }
+      .project-hero, .project-content { padding-left:24px; padding-right:24px; }
+      nav, nav.scrolled { padding:18px 24px; }
+      .project-nav { margin:0 24px; }
+      .project-meta-bar { flex-direction:column; }
+      .meta-item { border-right:none; border-bottom:1px solid var(--border); }
+      .meta-item:last-child { border-bottom:none; }
+      footer { padding:28px 24px; flex-direction:column; gap:14px; text-align:center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="glow-1"></div>
+<div class="glow-2"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="../index.html">DR<span>.</span></a>
+  <a class="nav-back" href="../index.html#projects">← Back to Projects</a>
+</nav>
+
+<!-- HERO -->
+<div class="project-hero">
+  <div class="project-hero-bg"></div>
+  <div class="project-hero-content">
+
+    <!-- ════════════════════════════════════════════════
+         EDIT 3: Update the breadcrumb category
+    ════════════════════════════════════════════════ -->
+    <div class="hero-breadcrumb">Projects / Robotics &amp; Autonomous Systems</div>
+
+    <!-- ════════════════════════════════════════════════
+         EDIT 4: Your project title
+    ════════════════════════════════════════════════ -->
+    <h1 class="project-hero-title">Autonomous Underwater<br>Vehicle (AUV)</h1>
+
+    <!-- ════════════════════════════════════════════════
+         EDIT 5: One-sentence project summary
+    ════════════════════════════════════════════════ -->
+    <p class="project-hero-sub">Design and control architecture for a multi-axis autonomous underwater vehicle capable of closed-loop depth control and sensor-fused state estimation.</p>
+
+    <!-- ════════════════════════════════════════════════
+         EDIT 6: Fill in the 4 meta fields
+    ════════════════════════════════════════════════ -->
+    <div class="project-meta-bar">
+      <div class="meta-item">
+        <div class="meta-label">Category</div>
+        <div class="meta-value">Robotics / Controls</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Timeline</div>
+        <div class="meta-value">Sept 2022 — Mar 2023</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Role</div>
+        <div class="meta-value">Mechanical &amp; Controls Lead</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Status</div>
+        <div class="meta-value">Completed</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="project-content">
+  <div class="content-grid">
+
+    <!-- LEFT COLUMN: body copy + images -->
+    <div>
+
+      <!-- OVERVIEW -->
+      <!-- ════════════════════════════════════════════════
+           EDIT 7: Project overview / background
+      ════════════════════════════════════════════════ -->
+      <div class="content-section fade-in">
+        <div class="section-label">// Overview</div>
+        <h2>Project Background</h2>
+        <p>
+          Write 2–3 paragraphs here describing the project background, motivation, and goals.
+          What problem were you solving? What were the constraints? Who was it for?
+        </p>
+        <p>
+          Add a second paragraph here. Describe the <strong>scope of your contribution</strong>
+          and what made this project technically interesting or challenging.
+        </p>
+      </div>
+
+      <!-- HERO IMAGE (full-width) -->
+      <!-- ════════════════════════════════════════════════
+           EDIT 8: Replace placeholder with your image.
+           Change the src path, keep the alt text descriptive.
+           Example: src="../images/projects/auv-main.jpg"
+      ════════════════════════════════════════════════ -->
+      <div class="fade-in" style="margin-bottom:60px;">
+        <div class="img-wrapper">
+          <!-- OPTION A: use a real image (recommended) -->
+          <!-- <img src="../images/projects/auv-main.jpg" alt="AUV full assembly" /> -->
+
+          <!-- OPTION B: placeholder until you have a photo (delete this once you add OPTION A) -->
+          <div class="img-placeholder" style="aspect-ratio:16/9;">
+            <span style="font-size:2rem;">🖼</span>
+            <span>Replace with: images/projects/auv-main.jpg<br>Recommended size: 1400×788px</span>
+          </div>
+        </div>
+        <div class="img-caption">Main assembly — full AUV system overview</div>
+      </div>
+
+      <!-- APPROACH / METHODOLOGY -->
+      <!-- ════════════════════════════════════════════════
+           EDIT 9: Technical approach section
+      ════════════════════════════════════════════════ -->
+      <div class="content-section fade-in">
+        <div class="section-label">// Approach</div>
+        <h2>Technical Approach</h2>
+        <p>Describe your methodology, design decisions, and technical implementation here.</p>
+        <ul class="content-list">
+          <li>Key technical decision or design choice #1 — explain the reasoning</li>
+          <li>Key technical decision or design choice #2 — explain the reasoning</li>
+          <li>Key technical decision or design choice #3 — explain the reasoning</li>
+          <li>Key technical decision or design choice #4 — explain the reasoning</li>
+        </ul>
+      </div>
+
+      <!-- IMAGE ROW: 2 side-by-side -->
+      <!-- ════════════════════════════════════════════════
+           EDIT 10: Add 2 in-progress / detail photos
+      ════════════════════════════════════════════════ -->
+      <div class="image-grid cols-2 fade-in" style="margin-bottom:60px;">
+        <div class="img-wrapper">
+          <!-- <img src="../images/projects/auv-cad.jpg" alt="CAD model" /> -->
+          <div class="img-placeholder"><span style="font-size:1.5rem;">🖼</span><span>auv-cad.jpg<br>800×600px</span></div>
+          <div class="img-caption">SolidWorks CAD model</div>
+        </div>
+        <div class="img-wrapper">
+          <!-- <img src="../images/projects/auv-assembly.jpg" alt="Physical assembly" /> -->
+          <div class="img-placeholder"><span style="font-size:1.5rem;">🖼</span><span>auv-assembly.jpg<br>800×600px</span></div>
+          <div class="img-caption">Physical assembly</div>
+        </div>
+      </div>
+
+      <!-- CHALLENGES & SOLUTIONS -->
+      <!-- ════════════════════════════════════════════════
+           EDIT 11: Challenges you overcame
+      ════════════════════════════════════════════════ -->
+      <div class="content-section fade-in">
+        <div class="section-label">// Challenges</div>
+        <h2>Challenges &amp; Solutions</h2>
+        <p>Describe a significant technical challenge you encountered and how you solved it. This is the most compelling part of a project writeup for recruiters and engineers.</p>
+        <p>Add a second challenge if relevant. Be specific about what didn't work first and what you changed.</p>
+      </div>
+
+      <!-- IMAGE ROW: 3 wide (good for test data, simulation screenshots, etc.) -->
+      <!-- ════════════════════════════════════════════════
+           EDIT 12: Add result/testing photos or screenshots
+           Delete this block entirely if you only have 1–2 photos
+      ════════════════════════════════════════════════ -->
+      <div class="image-grid cols-3 fade-in" style="margin-bottom:60px;">
+        <div class="img-wrapper">
+          <!-- <img src="../images/projects/auv-test-1.jpg" alt="Pool test" /> -->
+          <div class="img-placeholder" style="aspect-ratio:4/3;"><span style="font-size:1.3rem;">🖼</span><span>auv-test-1.jpg</span></div>
+          <div class="img-caption">Pool testing, run 1</div>
+        </div>
+        <div class="img-wrapper">
+          <!-- <img src="../images/projects/auv-test-2.jpg" alt="Sensor data" /> -->
+          <div class="img-placeholder" style="aspect-ratio:4/3;"><span style="font-size:1.3rem;">🖼</span><span>auv-test-2.jpg</span></div>
+          <div class="img-caption">Sensor data log</div>
+        </div>
+        <div class="img-wrapper">
+          <!-- <img src="../images/projects/auv-result.jpg" alt="Final result" /> -->
+          <div class="img-placeholder" style="aspect-ratio:4/3;"><span style="font-size:1.3rem;">🖼</span><span>auv-result.jpg</span></div>
+          <div class="img-caption">Final result</div>
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <!-- ════════════════════════════════════════════════
+           EDIT 13: Outcomes and results
+      ════════════════════════════════════════════════ -->
+      <div class="content-section fade-in">
+        <div class="section-label">// Results</div>
+        <h2>Outcomes</h2>
+        <p>Summarize the final outcome. Did it work? What did you validate? What would you improve?</p>
+      </div>
+
+    </div><!-- end left col -->
+
+    <!-- RIGHT COLUMN: sticky sidebar -->
+    <aside class="sidebar">
+
+      <!-- TECH STACK -->
+      <!-- ════════════════════════════════════════════════
+           EDIT 14: Add/remove tags to match your project
+      ════════════════════════════════════════════════ -->
+      <div class="sidebar-card fade-in">
+        <div class="sidebar-card-title">// Tech Stack</div>
+        <div class="tech-tags">
+          <span class="tech-tag">SolidWorks</span>
+          <span class="tech-tag">MATLAB</span>
+          <span class="tech-tag">Python</span>
+          <span class="tech-tag">ROS</span>
+          <span class="tech-tag">Control Systems</span>
+          <span class="tech-tag">Sensor Fusion</span>
+          <span class="tech-tag">CAD/CAM</span>
+          <span class="tech-tag">FEA</span>
+        </div>
+      </div>
+
+      <!-- KEY OUTCOMES -->
+      <!-- ════════════════════════════════════════════════
+           EDIT 15: 3–5 bullet outcomes / achievements
+      ════════════════════════════════════════════════ -->
+      <div class="sidebar-card fade-in">
+        <div class="sidebar-card-title">// Key Outcomes</div>
+        <div class="outcome-list">
+          <div class="outcome-item"><div class="outcome-dot"></div><div class="outcome-text">Achieved closed-loop depth control within ±5cm accuracy</div></div>
+          <div class="outcome-item"><div class="outcome-dot"></div><div class="outcome-text">Designed and fabricated full hull assembly from scratch</div></div>
+          <div class="outcome-item"><div class="outcome-dot"></div><div class="outcome-text">Integrated IMU + pressure sensor for state estimation</div></div>
+          <div class="outcome-item"><div class="outcome-dot"></div><div class="outcome-text">Validated in pool testing over 3 test sessions</div></div>
+        </div>
+      </div>
+
+      <!-- LINKS (optional — delete items you don't have) -->
+      <!-- ════════════════════════════════════════════════
+           EDIT 16: Add real links or delete this card
+      ════════════════════════════════════════════════ -->
+      <div class="sidebar-card fade-in">
+        <div class="sidebar-card-title">// Links</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <!-- GitHub link -->
+          <a class="sidebar-link" href="https://github.com/" target="_blank">
+            GitHub Repository <span>↗</span>
+          </a>
+          <!-- Report / paper PDF — put it in a /docs/ folder -->
+          <a class="sidebar-link" href="../docs/auv-report.pdf" target="_blank">
+            Project Report <span>↗</span>
+          </a>
+          <!-- Video demo — YouTube or Vimeo link -->
+          <!-- <a class="sidebar-link" href="https://youtube.com/..." target="_blank">Video Demo <span>↗</span></a> -->
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>
+
+<!-- PREV / NEXT PROJECT NAV -->
+<!-- ════════════════════════════════════════════════
+     EDIT 17: Link to the previous and next project pages.
+     Delete the one you don't need (e.g. first/last project).
+════════════════════════════════════════════════ -->
+<div class="project-nav">
+  <a class="proj-nav-link prev" href="bioprinter.html">
+    <div class="proj-nav-dir">← Previous Project</div>
+    <div class="proj-nav-title">Surgical 3D Bioprinter</div>
+  </a>
+  <a class="proj-nav-link next" href="fem-heat.html">
+    <div class="proj-nav-dir">Next Project →</div>
+    <div class="proj-nav-title">2D Heat Conduction FEM</div>
+  </a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-copy">© 2025 <span>Daniel Ruiz</span>. All rights reserved.</div>
+  <div class="footer-links">
+    <a href="../index.html">Home</a>
+    <a href="../index.html#projects">Projects</a>
+    <a href="../index.html#contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 40); });
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) { setTimeout(() => e.target.classList.add('visible'), i * 80); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
